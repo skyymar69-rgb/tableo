@@ -1,11 +1,12 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { Link } from "react-router-dom";
-import { Plus, Utensils, ExternalLink, QrCode, Trash2, Edit3, Sparkles } from "lucide-react";
+import { Plus, Utensils, ExternalLink, QrCode, Trash2, Edit3, Sparkles, Upload } from "lucide-react";
 import { menuStore, type RestaurantInfo } from "@/lib/menu-store";
-import { importDemoMenus } from "@/lib/demo-menus";
+import { importDemoMenus, importMenuFromJson } from "@/lib/demo-menus";
 
 const Dashboard = () => {
   const [restaurants, setRestaurants] = useState<RestaurantInfo[]>([]);
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
     setRestaurants(menuStore.listRestaurants());
@@ -16,6 +17,20 @@ const Dashboard = () => {
   const handleImportDemo = () => {
     importDemoMenus();
     refresh();
+  };
+
+  const handleImportJson = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    const text = await file.text();
+    const result = importMenuFromJson(text);
+    if ("error" in result) {
+      alert(`Import échoué : ${result.error}`);
+    } else {
+      refresh();
+      alert(`Menu importé : ${result.slug}`);
+    }
+    if (fileInputRef.current) fileInputRef.current.value = "";
   };
 
   return (
@@ -35,13 +50,30 @@ const Dashboard = () => {
               Gère tes menus, QR codes et analytics en un seul endroit.
             </p>
           </div>
-          <Link
-            to="/onboarding"
-            className="inline-flex items-center gap-2 rounded-xl bg-gradient-warm px-5 py-2.5 text-sm font-semibold text-primary-foreground hover:opacity-90 hover:scale-[1.02] transition-all shadow-warm"
-          >
-            <Plus className="w-4 h-4" />
-            Nouveau restaurant
-          </Link>
+          <div className="flex items-center gap-3">
+            <input
+              ref={fileInputRef}
+              type="file"
+              accept="application/json,.json"
+              onChange={handleImportJson}
+              className="hidden"
+            />
+            <button
+              onClick={() => fileInputRef.current?.click()}
+              className="inline-flex items-center gap-2 rounded-xl border border-border px-4 py-2.5 text-sm font-medium text-foreground hover:bg-secondary/50 transition-all"
+              title="Importer un menu depuis un fichier JSON"
+            >
+              <Upload className="w-4 h-4" />
+              Importer JSON
+            </button>
+            <Link
+              to="/onboarding"
+              className="inline-flex items-center gap-2 rounded-xl bg-gradient-warm px-5 py-2.5 text-sm font-semibold text-primary-foreground hover:opacity-90 hover:scale-[1.02] transition-all shadow-warm"
+            >
+              <Plus className="w-4 h-4" />
+              Nouveau restaurant
+            </Link>
+          </div>
         </div>
 
         {restaurants.length === 0 ? (

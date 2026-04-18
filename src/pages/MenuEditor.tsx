@@ -12,6 +12,7 @@ import {
   Check,
   X,
   ExternalLink,
+  Download,
 } from "lucide-react";
 import {
   menuStore,
@@ -21,6 +22,7 @@ import {
   type Category,
   type Dish,
 } from "@/lib/menu-store";
+import { exportMenuAsJson } from "@/lib/demo-menus";
 import { QrCodeBlock } from "@/components/QrCodeBlock";
 
 const MenuEditor = () => {
@@ -78,15 +80,36 @@ const MenuEditor = () => {
               <p className="text-xs text-muted-foreground">Éditeur de menu</p>
             </div>
           </div>
-          <a
-            href={publicUrl}
-            target="_blank"
-            rel="noreferrer"
-            className="inline-flex items-center gap-1.5 rounded-lg bg-gradient-warm px-4 py-2 text-sm font-semibold text-primary-foreground hover:opacity-90 transition-all"
-          >
-            Voir le menu public
-            <ExternalLink className="w-3.5 h-3.5" />
-          </a>
+          <div className="flex items-center gap-2">
+            <button
+              onClick={() => {
+                const json = exportMenuAsJson(activeSlug);
+                if (!json) return;
+                const blob = new Blob([json], { type: "application/json" });
+                const url = URL.createObjectURL(blob);
+                const link = document.createElement("a");
+                link.download = `tableo-${activeSlug}-${new Date().toISOString().slice(0, 10)}.json`;
+                link.href = url;
+                link.click();
+                setTimeout(() => URL.revokeObjectURL(url), 500);
+              }}
+              className="inline-flex items-center gap-1.5 rounded-lg border border-border px-3 py-2 text-xs font-medium text-foreground hover:bg-secondary/50 transition-all"
+              aria-label="Exporter en JSON"
+              title="Exporter le menu en JSON (backup, partage, migration)"
+            >
+              <Download className="w-3.5 h-3.5" />
+              JSON
+            </button>
+            <a
+              href={publicUrl}
+              target="_blank"
+              rel="noreferrer"
+              className="inline-flex items-center gap-1.5 rounded-lg bg-gradient-warm px-4 py-2 text-sm font-semibold text-primary-foreground hover:opacity-90 transition-all"
+            >
+              Voir le menu public
+              <ExternalLink className="w-3.5 h-3.5" />
+            </a>
+          </div>
         </div>
       </div>
 
