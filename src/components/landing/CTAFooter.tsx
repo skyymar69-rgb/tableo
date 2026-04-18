@@ -20,7 +20,7 @@ const CTASection = () => (
       </p>
       <div className="mt-10 flex flex-col sm:flex-row items-center justify-center gap-4">
         <Link
-          to="/signup"
+          to="/onboarding"
           className="inline-flex items-center gap-2 rounded-xl bg-gradient-warm px-8 py-4 text-base font-semibold text-primary-foreground shadow-warm transition-all hover:scale-[1.03] hover:shadow-glow-warm focus-ring"
         >
           Commencer gratuitement

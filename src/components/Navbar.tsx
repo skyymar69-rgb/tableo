@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import { Menu, X, ChevronRight, LogOut } from "lucide-react";
 import { Link, useLocation } from "react-router-dom";
 import { useAuth } from "@/hooks/useAuth";
+import { isSupabaseConfigured } from "@/lib/supabase";
 
 const Navbar = () => {
   const [open, setOpen] = useState(false);
@@ -9,6 +10,8 @@ const Navbar = () => {
   const location = useLocation();
   const isLanding = location.pathname === "/";
   const { user, signOut } = useAuth();
+  // In Phase 3 (no Supabase), show direct Dashboard link; auth UI stays wired for when Supabase is on
+  const showAuthUi = isSupabaseConfigured;
 
   // 9. Scroll-based blur intensification
   useEffect(() => {
@@ -55,7 +58,20 @@ const Navbar = () => {
         )}
 
         <div className="hidden md:flex items-center gap-3">
-          {user ? (
+          {!showAuthUi ? (
+            <>
+              <Link to="/dashboard" className="text-sm text-muted-foreground hover:text-foreground transition-colors focus-ring rounded-lg px-3 py-1.5">
+                Mes restaurants
+              </Link>
+              <Link
+                to="/onboarding"
+                className="inline-flex items-center gap-1.5 rounded-lg bg-gradient-warm px-5 py-2 text-sm font-semibold text-primary-foreground transition-all hover:opacity-90 hover:scale-[1.02] focus-ring"
+              >
+                Créer mon menu
+                <ChevronRight className="w-3.5 h-3.5" />
+              </Link>
+            </>
+          ) : user ? (
             <>
               <Link to="/dashboard" className="text-sm text-muted-foreground hover:text-foreground transition-colors focus-ring rounded-lg px-3 py-1.5">
                 Dashboard

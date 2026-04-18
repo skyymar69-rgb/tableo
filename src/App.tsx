@@ -4,10 +4,11 @@ import { Toaster as Sonner } from "@/components/ui/sonner";
 import { Toaster } from "@/components/ui/toaster";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { AuthProvider } from "@/contexts/AuthContext";
-import { ProtectedRoute } from "@/components/auth/ProtectedRoute";
 import Index from "./pages/Index";
 import Dashboard from "./pages/Dashboard";
 import Onboarding from "./pages/Onboarding";
+import MenuEditor from "./pages/MenuEditor";
+import PublicMenu from "./pages/PublicMenu";
 import Login from "./pages/Login";
 import Signup from "./pages/Signup";
 import NotFound from "./pages/NotFound";
@@ -22,25 +23,21 @@ const App = () => (
         <Sonner />
         <BrowserRouter>
           <Routes>
+            {/* Public */}
             <Route path="/" element={<Index />} />
+            <Route path="/r/:slug" element={<PublicMenu />} />
+
+            {/* Auth */}
             <Route path="/login" element={<Login />} />
             <Route path="/signup" element={<Signup />} />
-            <Route
-              path="/onboarding"
-              element={
-                <ProtectedRoute>
-                  <Onboarding />
-                </ProtectedRoute>
-              }
-            />
-            <Route
-              path="/dashboard"
-              element={
-                <ProtectedRoute>
-                  <Dashboard />
-                </ProtectedRoute>
-              }
-            />
+
+            {/* Dashboard & menu editor — currently open (Phase 3 uses localStorage).
+                When Supabase is wired, wrap these with <ProtectedRoute>. */}
+            <Route path="/dashboard" element={<Dashboard />} />
+            <Route path="/onboarding" element={<Onboarding />} />
+            <Route path="/menu/:slug" element={<MenuEditor />} />
+            <Route path="/menu" element={<MenuEditor />} />
+
             <Route path="*" element={<NotFound />} />
           </Routes>
         </BrowserRouter>

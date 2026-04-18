@@ -1,6 +1,6 @@
 import { createContext, useEffect, useState, type ReactNode } from "react";
 import type { Session, User } from "@supabase/supabase-js";
-import { supabase } from "@/lib/supabase";
+import { supabase, isSupabaseConfigured } from "@/lib/supabase";
 
 type AuthContextValue = {
   session: Session | null;
@@ -19,10 +19,24 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    supabase.auth.getSession().then(({ data }) => {
-      setSession(data.session);
+    if (!isSupabaseConfigured) {
+      // No Supabase yet — skip auth init so app still works
       setLoading(false);
-    });
+      return;
+    }
+
+    let mounted = true;
+    supabase.auth
+      .getSession()
+      .then(({ data }) => {
+        if (!mounted) return;
+        setSession(data.session);
+        setLoading(false);
+      })
+      .catch(() => {
+        if (!mounted) return;
+        setLoading(false);
+      });
 
     const {
       data: { subscription },
@@ -30,7 +44,10 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       setSession(newSession);
     });
 
-    return () => subscription.unsubscribe();
+    return () => {
+      mounted = false;
+      subscription.unsubscribe();
+    };
   }, []);
 
   const signUp: AuthContextValue["signUp"] = async (email, password, displayName) => {
