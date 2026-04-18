@@ -1,19 +1,22 @@
 import { useEffect, useState } from "react";
-import { Link, useNavigate } from "react-router-dom";
-import { Plus, Utensils, ExternalLink, QrCode, Trash2, Edit3 } from "lucide-react";
+import { Link } from "react-router-dom";
+import { Plus, Utensils, ExternalLink, QrCode, Trash2, Edit3, Sparkles } from "lucide-react";
 import { menuStore, type RestaurantInfo } from "@/lib/menu-store";
+import { importDemoMenus } from "@/lib/demo-menus";
 
 const Dashboard = () => {
   const [restaurants, setRestaurants] = useState<RestaurantInfo[]>([]);
-  const navigate = useNavigate();
 
   useEffect(() => {
-    const list = menuStore.listRestaurants();
-    setRestaurants(list);
-    if (list.length === 0) navigate("/onboarding", { replace: true });
-  }, [navigate]);
+    setRestaurants(menuStore.listRestaurants());
+  }, []);
 
   const refresh = () => setRestaurants(menuStore.listRestaurants());
+
+  const handleImportDemo = () => {
+    importDemoMenus();
+    refresh();
+  };
 
   return (
     <div className="min-h-screen bg-background noise-overlay">
@@ -42,9 +45,31 @@ const Dashboard = () => {
         </div>
 
         {restaurants.length === 0 ? (
-          <div className="rounded-2xl border border-dashed border-border bg-card/30 p-12 text-center">
+          <div className="rounded-2xl border border-dashed border-border bg-card/30 p-12 text-center max-w-xl mx-auto">
             <Utensils className="w-10 h-10 text-muted-foreground mx-auto mb-3" />
-            <p className="text-sm text-muted-foreground">Aucun restaurant. Créez-en un pour commencer.</p>
+            <h2 className="text-lg font-semibold text-foreground mb-2">Aucun restaurant pour l'instant</h2>
+            <p className="text-sm text-muted-foreground mb-6">
+              Crée ton premier menu en 2 minutes, ou charge nos menus de démo pour tester l'interface.
+            </p>
+            <div className="flex flex-col sm:flex-row items-center justify-center gap-3">
+              <Link
+                to="/onboarding"
+                className="inline-flex items-center gap-2 rounded-xl bg-gradient-warm px-5 py-2.5 text-sm font-semibold text-primary-foreground hover:opacity-90 hover:scale-[1.02] transition-all shadow-warm"
+              >
+                <Plus className="w-4 h-4" />
+                Créer mon restaurant
+              </Link>
+              <button
+                onClick={handleImportDemo}
+                className="inline-flex items-center gap-2 rounded-xl border border-border px-5 py-2.5 text-sm font-semibold text-foreground hover:bg-secondary/50 transition-all"
+              >
+                <Sparkles className="w-4 h-4 text-primary" />
+                Importer les menus de démo
+              </button>
+            </div>
+            <p className="mt-4 text-xs text-muted-foreground/60">
+              Démo : 2 menus de La Raffinerie (Saxe + Valmy) préremplis — tapas, bières, desserts, cocktails.
+            </p>
           </div>
         ) : (
           <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-5">
