@@ -1,12 +1,14 @@
 import { useState, useEffect } from "react";
-import { Menu, X, ChevronRight } from "lucide-react";
+import { Menu, X, ChevronRight, LogOut } from "lucide-react";
 import { Link, useLocation } from "react-router-dom";
+import { useAuth } from "@/hooks/useAuth";
 
 const Navbar = () => {
   const [open, setOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
   const location = useLocation();
   const isLanding = location.pathname === "/";
+  const { user, signOut } = useAuth();
 
   // 9. Scroll-based blur intensification
   useEffect(() => {
@@ -53,16 +55,34 @@ const Navbar = () => {
         )}
 
         <div className="hidden md:flex items-center gap-3">
-          <Link to="/dashboard" className="text-sm text-muted-foreground hover:text-foreground transition-colors focus-ring rounded-lg px-3 py-1.5">
-            Dashboard
-          </Link>
-          <Link
-            to="/onboarding"
-            className="inline-flex items-center gap-1.5 rounded-lg bg-gradient-warm px-5 py-2 text-sm font-semibold text-primary-foreground transition-all hover:opacity-90 hover:scale-[1.02] focus-ring"
-          >
-            Commencer gratuitement
-            <ChevronRight className="w-3.5 h-3.5" />
-          </Link>
+          {user ? (
+            <>
+              <Link to="/dashboard" className="text-sm text-muted-foreground hover:text-foreground transition-colors focus-ring rounded-lg px-3 py-1.5">
+                Dashboard
+              </Link>
+              <button
+                onClick={() => signOut()}
+                className="inline-flex items-center gap-1.5 rounded-lg border border-border px-4 py-2 text-sm font-medium text-foreground hover:bg-secondary/50 transition-all focus-ring"
+                aria-label="Déconnexion"
+              >
+                <LogOut className="w-3.5 h-3.5" />
+                Déconnexion
+              </button>
+            </>
+          ) : (
+            <>
+              <Link to="/login" className="text-sm text-muted-foreground hover:text-foreground transition-colors focus-ring rounded-lg px-3 py-1.5">
+                Se connecter
+              </Link>
+              <Link
+                to="/signup"
+                className="inline-flex items-center gap-1.5 rounded-lg bg-gradient-warm px-5 py-2 text-sm font-semibold text-primary-foreground transition-all hover:opacity-90 hover:scale-[1.02] focus-ring"
+              >
+                Commencer gratuitement
+                <ChevronRight className="w-3.5 h-3.5" />
+              </Link>
+            </>
+          )}
         </div>
 
         <button className="md:hidden text-foreground focus-ring rounded-lg p-1" onClick={() => setOpen(!open)} aria-label="Menu">
@@ -80,12 +100,28 @@ const Navbar = () => {
               {l.label}
             </a>
           ))}
-          <Link to="/dashboard" className="block text-sm text-muted-foreground hover:text-foreground transition-colors" onClick={() => setOpen(false)}>
-            Dashboard
-          </Link>
-          <Link to="/onboarding" className="block rounded-lg bg-gradient-warm px-4 py-2.5 text-sm font-semibold text-primary-foreground text-center" onClick={() => setOpen(false)}>
-            Commencer gratuitement
-          </Link>
+          {user ? (
+            <>
+              <Link to="/dashboard" className="block text-sm text-muted-foreground hover:text-foreground transition-colors" onClick={() => setOpen(false)}>
+                Dashboard
+              </Link>
+              <button
+                onClick={() => { setOpen(false); signOut(); }}
+                className="block w-full text-left text-sm text-muted-foreground hover:text-foreground transition-colors"
+              >
+                Déconnexion
+              </button>
+            </>
+          ) : (
+            <>
+              <Link to="/login" className="block text-sm text-muted-foreground hover:text-foreground transition-colors" onClick={() => setOpen(false)}>
+                Se connecter
+              </Link>
+              <Link to="/signup" className="block rounded-lg bg-gradient-warm px-4 py-2.5 text-sm font-semibold text-primary-foreground text-center" onClick={() => setOpen(false)}>
+                Commencer gratuitement
+              </Link>
+            </>
+          )}
         </div>
       </div>
     </nav>
